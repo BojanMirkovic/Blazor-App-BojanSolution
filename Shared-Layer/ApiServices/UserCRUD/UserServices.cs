@@ -17,11 +17,6 @@ namespace Shared_Layer.ApiServices.UserCRUD
             throw new NotImplementedException();
         }
 
-        public Task<string> GenerateJwtTokenAsync(UserModel user)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<IEnumerable<UserModel>> GetAllUsersAsync()
         {
             return await _httpClient.GetFromJsonAsync<List<UserModel>>("api/User/GetAllUsers");
@@ -57,9 +52,24 @@ namespace Shared_Layer.ApiServices.UserCRUD
             }
         }
 
-        public Task<UserModel> UpdateUserAsync(UserModel userToUpdate, string currentPassword, string newPassword)
+        public async Task UpdateUserAsync(UpdatingUserDTO userToUpdate)
         {
-            throw new NotImplementedException();
+            var data = new
+            {
+                userToUpdate.Role,
+                userToUpdate.FirstName,
+                userToUpdate.LastName,
+                userToUpdate.Email,
+                userToUpdate.CurrentPassword,
+                userToUpdate.NewPassword,
+            };
+            using (var response = await _httpClient.PutAsJsonAsync("api/User/updateUser", data))
+            {
+                if (response.IsSuccessStatusCode == false)
+                {
+                    throw new Exception(response.ReasonPhrase);
+                }
+            }
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Shared_Layer.ApiServices.UserCRUD
         Task<IEnumerable<UserModel>> GetAllUsersAsync();
         Task<UserModel> GetUserByEmailAsync(string email);
         Task<UserModel> GetUserByIdAsync(string userId);
-        Task<UserModel> UpdateUserAsync(UserModel userToUpdate, string currentPassword, string newPassword);
+        Task UpdateUserAsync(UpdatingUserDTO userToUpdate);
         Task<bool> DeleteUserByIdAsync(string userId);
     }
 }

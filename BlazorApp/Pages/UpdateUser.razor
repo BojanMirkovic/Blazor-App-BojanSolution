@@ -1,0 +1,96 @@
+﻿@page "/update"
+@using Domain_Layer.CommandOperationResult
+@using Domain_Layer.Models.User
+@using Shared_Layer.DTO_s.User
+@using Shared_Layer.ApiServices.UserCRUD
+@inject HttpClient Http
+@inject IUserServices ApiService;
+@inject NavigationManager NavManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<h2>Update User</h2>
+
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="alert alert-danger mt-3">
+        <strong>Error:</strong> @errorMessage
+    </div>
+}
+@if (!string.IsNullOrWhiteSpace(successMessage))
+{
+    <div class="alert alert-success mt-3">
+        <strong>Success:</strong> @successMessage
+    </div>
+}
+
+<EditForm Model="@model" OnValidSubmit="HandleUserUpdate" class="card card-body bg-light mt-5">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-floating mb-3">
+        <InputText @bind-Value="model.Email" class="form-control" id="email" placeholder="Email" />
+        <label for="firstName">Email</label>
+    </div>
+    <div class="form-floating mb-3">
+        <InputText @bind-Value="model.CurrentPassword" class="form-control" id="CurrentPassword" placeholder="Password" />
+        <label for="firstName">Current Password</label>
+    </div>
+    <div class="form-floating mb-3">
+        <InputText @bind-Value="model.NewPassword" class="form-control" id="newPassword" placeholder="Password" />
+        <label for="firstName">New Password</label>
+    </div>
+    <InputSelect @bind-Value="model.Role" class="form-control mb-3">
+        <option value="" disabled selected>Role</option>
+        @if (isAdmin)
+        {
+            <option value="Admin">Admin</option>
+        }
+        <option value="Teacher">Teacher</option>
+        <option value="Student">Student</option>
+    </InputSelect>
+
+    <div class="form-floating mb-3">
+        <InputText @bind-Value="model.FirstName" class="form-control" id="firstName" placeholder="First Name" />
+        <label for="firstName">First Name</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <InputText @bind-Value="model.LastName" class="form-control" id="lastName" placeholder="Last Name" />
+        <label for="firstName">Last Name</label>
+    </div>
+   
+    <button class="btn btn-primary mt-3">Submit</button>
+</EditForm>
+
+@code {
+    private UpdatingUserDTO model = new();
+    private string? successMessage;
+    private string? errorMessage;
+    private bool isAdmin = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        isAdmin = user.IsInRole("Admin");
+
+    }
+
+    private async Task HandleUserUpdate()
+    {
+        errorMessage = "";
+        try
+        {
+            await ApiService.UpdateUserAsync(model);
+            model = new UpdatingUserDTO();
+            // Redirect to login page upon successful registration
+            // NavManager.NavigateTo("/login");
+            successMessage = "Update is successful!";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+}
