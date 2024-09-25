@@ -10,6 +10,6 @@ namespace Shared_Layer.ApiServices.UserCRUD
         Task<UserModel> GetUserByEmailAsync(string email);
         Task<UserModel> GetUserByIdAsync(string userId);
         Task UpdateUserAsync(UpdatingUserDTO userToUpdate);
-        Task<bool> DeleteUserByIdAsync(string userId);
+        Task<HttpResponseMessage> DeleteUserByIdAsync(string userId);
     }
 }

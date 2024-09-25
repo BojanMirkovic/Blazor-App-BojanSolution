@@ -1,0 +1,95 @@
+﻿@page "/delete"
+@using Domain_Layer.Models.User
+@using Shared_Layer.ApiServices.UserCRUD
+@using Shared_Layer.ApiServices.Authentication
+@using Shared_Layer.DTO_s.User
+@inject IUserServices ApiService
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<h3>Delete User</h3>
+@if (!string.IsNullOrWhiteSpace(successMessage))
+{
+    <div class="alert alert-success">
+        @successMessage
+    </div>
+}
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
+}
+
+
+<EditForm Model="model" OnValidSubmit="OnSubmit" class="card card-body bg-light mt-5">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-floating mb-3">
+        <InputText @bind-Value="model.Id" class="form-control" id="id" placeholder="Id" />
+        <label for="id">Id</label>
+        <ValidationMessage For="@(() => model.Id)" />
+    </div>
+    <button class="btn btn-primary mt-3">Delete</button>
+</EditForm>
+@if (isDeleting)
+{
+    <div class="mt-4 text-center">
+        <!-- You can use a spinner component or simple message -->
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Deleting</span>
+        </div>
+        <p>Deleting data, please wait...</p>
+    </div>
+}
+
+
+
+@code {
+    private UserIdDTO model = new();
+    private string? errorMessage;
+    private string? successMessage;
+    private bool isDeleting = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+
+    private async Task OnSubmit()
+    {
+        isDeleting = true; // Set loading state to true
+        errorMessage = null; // Clear any previous error message
+        try
+        {
+            // Simulate a delay for demonstration
+            //await Task.Delay(500);
+
+            // Fetch user data and assign it to the model
+            var response = await ApiService.DeleteUserByIdAsync(model.Id);
+            if(response.IsSuccessStatusCode)
+            {
+                successMessage = "User's account is successfuly deleted";
+                model = new();
+            }
+            else
+            {
+                // Read the error message from the response body, if any
+                var errorContent = await response.Content.ReadAsStringAsync();
+                errorMessage = $"Failed to delete user. Server response: {response.StatusCode}, {errorContent}";
+            }
+            
+           
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"There is a problem with deleting user with Id: {model.Id}. {ex.Message}";
+        }
+        finally
+        {
+            isDeleting = false; // Stop loading
+        }
+    }
+}
+

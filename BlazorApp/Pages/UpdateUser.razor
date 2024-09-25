@@ -84,8 +84,7 @@
         {
             await ApiService.UpdateUserAsync(model);
             model = new UpdatingUserDTO();
-            // Redirect to login page upon successful registration
-            // NavManager.NavigateTo("/login");
+          
             successMessage = "Update is successful!";
         }
         catch (Exception ex)
