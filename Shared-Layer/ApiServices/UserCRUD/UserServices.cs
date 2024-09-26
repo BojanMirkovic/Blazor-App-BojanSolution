@@ -12,9 +12,9 @@ namespace Shared_Layer.ApiServices.UserCRUD
         {
             _httpClient = httpClient;
         }
-        public Task<bool> DeleteUserByIdAsync(string userId)
+        public async Task<HttpResponseMessage> DeleteUserByIdAsync(string userId)
         {
-            throw new NotImplementedException();
+            return await _httpClient.DeleteAsync($"api/User/deleteUser/{userId}");
         }
 
         public async Task<IEnumerable<UserModel>> GetAllUsersAsync()
@@ -22,14 +22,14 @@ namespace Shared_Layer.ApiServices.UserCRUD
             return await _httpClient.GetFromJsonAsync<List<UserModel>>("api/User/GetAllUsers");
         }
 
-        public Task<UserModel> GetUserByEmailAsync(string email)
+        public async Task<UserModel> GetUserByEmailAsync(string email)
         {
-            return _httpClient.GetFromJsonAsync<UserModel>($"api/User/by-email/{email}");
+            return await _httpClient.GetFromJsonAsync<UserModel>($"api/User/by-email/{email}");
         }
 
-        public Task<UserModel> GetUserByIdAsync(string userId)
+        public async Task<UserModel> GetUserByIdAsync(string userId)
         {
-            return _httpClient.GetFromJsonAsync<UserModel>($"api/User/{userId}");
+            return await _httpClient.GetFromJsonAsync<UserModel>($"api/User/{userId}");
         }
 
         public async Task RegisterNewUserAsync(RegisterUserDTO newUser)
