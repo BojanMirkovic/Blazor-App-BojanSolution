@@ -14,7 +14,7 @@ namespace BlazorApp
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7036/") });//api https address
+            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.Configuration["ApiLocation"]) });//api https address
 
             //Add services IUserService,... from Shared-Layer
             builder.Services.AddScoped<IUserServices, UserServices>();
