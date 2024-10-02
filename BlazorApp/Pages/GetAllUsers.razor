@@ -8,72 +8,112 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle> Get All Users </PageTitle>
-<h3>Users</h3>
 
-<p>This component demonstrates fetching data from the server.</p>
+<EditForm Model ="@searchQuery" class="container mt-4" OnValidSubmit="PerformSearch">
+    <h2 class="text-center mb-4">User Information</h2>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="input-group">
+                <InputText @bind-Value="searchQuery" class="form-control" placeholder="Search Users..." />
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </div>
+    </div>
 
 @if (result == null)
 {
-    <p><em>Loading...</em></p>
+    <div class="text-center">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (filteredResult == null || !filteredResult.Any())
+{
+    <div class="alert alert-danger text-center">
+        No users found. User doesn't exist.
+    </div>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Role</th>
-                <th>Is Deleted</th>
-                <th>Id</th>
-                <th>User Name</th>
-                <th>Normalized User Name</th>
-                <th>Email</th>
-                <th>Normalized Email</th>
-                <th>Email Confirmed</th>
-                <th>Password Hash</th>
-                <th>Security Stamp</th>
-                <th>Concurrency Stamp</th>
-                <th>Phone Number</th>
-                <th>Phone Number Confirmed</th>
-                <th>Two-Factor Enabled</th>
-                <th>Lockout End</th>
-                <th>Lockout Enabled</th>
-                <th>Access Failed Count</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var user in result)
-            {
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered shadow-sm">
+            <thead class="table-dark">
                 <tr>
-                    <td>@user.FirstName</td>
-                    <td>@user.LastName</td>
-                    <td>@user.Role</td>
-                    <td>@user.IsDeleted</td>
-                    <td>@user.Id</td>
-                    <td>@user.UserName</td>
-                    <td>@user.NormalizedUserName</td>
-                    <td>@user.Email</td>
-                    <td>@user.NormalizedEmail</td>
-                    <td>@user.EmailConfirmed.ToString()</td>
-                    <td>@user.PasswordHash</td>
-                    <td>@user.SecurityStamp</td>
-                    <td>@user.ConcurrencyStamp</td>
-                    <td>@user.PhoneNumber</td>
-                    <td>@user.PhoneNumberConfirmed.ToString()</td>
-                    <td>@user.TwoFactorEnabled.ToString()</td>
-                    <td>@user.LockoutEnd.ToString() ?? "N/A"</td>
-                    <td>@user.LockoutEnabled.ToString()</td>
-                    <td>@user.AccessFailedCount</td>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>ID</th>
+                    <th>isDeleted</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var user in filteredResult)
+                {
+                    <tr @onclick="() => ShowUserDetails(user)" style="cursor:pointer;">
+                        <td>@user.FirstName</td>
+                        <td>@user.LastName</td>
+                        <td>@user.Email</td>
+                        <td>
+                            <span class="@GetRoleBadgeClass(user.Role)">
+                                @user.Role
+                            </span>
+                        </td>
+                        <td>@user.Id</td>
+                        <td>@user.IsDeleted</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
+@if (selectedUser != null)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">User Details: @selectedUser.UserName</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>First Name:</strong> @selectedUser.FirstName</p>
+                            <p><strong>Last Name:</strong> @selectedUser.LastName</p>
+                            <p><strong>Email:</strong> @selectedUser.Email</p>
+                            <p><strong>Role:</strong> @selectedUser.Role</p>
+                            <p><strong>ID:</strong> @selectedUser.Id</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Phone Number:</strong> @selectedUser.PhoneNumber ?? "N/A"</p>
+                            <p><strong>Two-Factor Enabled:</strong> @selectedUser.TwoFactorEnabled.ToString()</p>
+                            <p><strong>Username:</strong> @selectedUser.UserName</p>
+                            <p><strong>Is Deleted:</strong> @selectedUser.IsDeleted</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+</EditForm>
+
+
+
+
 
 @code {
-    //  private bool isAdmin;
     IEnumerable<UserModel>? result;
+    IEnumerable<UserModel>? filteredResult;
+    UserModel? selectedUser;
+    string searchQuery = "";
     private bool isAdmin = false;
     protected override async Task OnInitializedAsync()
     {
@@ -81,11 +121,46 @@ else
         var user = authState.User;
         isAdmin = user.IsInRole("Admin");
 
-         if(!isAdmin)
-         {
-             // Redirect to an unauthorized page or home
-             NavigationManager.NavigateTo("/unauthorized");
-         }
+        if(!isAdmin)
+        {
+            // Redirect to an unauthorized page or home
+            NavigationManager.NavigateTo("/unauthorized");
+        }
         result = await ApiService.GetAllUsersAsync();
+        filteredResult = result.OrderBy(u => u.FirstName); // Show all users by default
+    }
+
+    void ShowUserDetails(UserModel user)
+    {
+        selectedUser = user;
+    }
+
+    void CloseModal()
+    {
+        selectedUser = null;
+    }
+
+    void PerformSearch()
+    {
+        if (!string.IsNullOrEmpty(searchQuery))
+        {
+            filteredResult = result?.Where(u =>
+                u.FirstName.StartsWith(searchQuery, StringComparison.OrdinalIgnoreCase))
+                .OrderBy(u => u.FirstName);
+        }
+        else
+        {
+            filteredResult = result?.OrderBy(u => u.FirstName);
+        }
+    }
+    string GetRoleBadgeClass(string role)
+    {
+        return role switch
+        {
+            "Admin" => "badge bg-success",
+            "Teacher" => "badge bg-info",
+            "Student" => "badge bg-secondary",
+
+        };
     }
 }
