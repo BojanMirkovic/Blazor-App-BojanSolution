@@ -1,12 +1,7 @@
 ﻿@page "/delete"
-@using Domain_Layer.Models.User
 @using Shared_Layer.ApiServices.UserCRUD
-@using Shared_Layer.ApiServices.Authentication
 @using Shared_Layer.DTO_s.User
 @inject IUserServices ApiService
-@inject IAuthService AuthService
-@inject NavigationManager NavigationManager
-@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <h3>Delete User</h3>
 @if (!string.IsNullOrWhiteSpace(successMessage))

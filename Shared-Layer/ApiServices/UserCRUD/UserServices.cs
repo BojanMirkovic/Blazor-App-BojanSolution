@@ -35,8 +35,8 @@ namespace Shared_Layer.ApiServices.UserCRUD
 
         public async Task<UserModel> GetUserByIdAsync(string userId)
         {
-            string apiEndpoint = _config["GetUserByIdEndpoint"]!;
-            return await _httpClient.GetFromJsonAsync<UserModel>($"{apiEndpoint} /{userId}");
+            string apiEndpoint = _config["GetUserByIdEndpiont"]!;
+            return await _httpClient.GetFromJsonAsync<UserModel>($"{apiEndpoint}/{userId}");
         }
 
         public async Task RegisterNewUserAsync(RegisterUserDTO newUser)
