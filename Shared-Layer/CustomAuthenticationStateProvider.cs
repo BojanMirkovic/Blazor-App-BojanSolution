@@ -2,21 +2,26 @@
 using System.Security.Claims;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.Extensions.Configuration;
 
 public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 {
     private readonly ILocalStorageService _localStorage;
     private readonly HttpClient _httpClient;
+    private readonly IConfiguration _config;
+    private string authTokenStorageKey;
 
-    public CustomAuthenticationStateProvider(ILocalStorageService localStorage, HttpClient httpClient)
+    public CustomAuthenticationStateProvider(ILocalStorageService localStorage, HttpClient httpClient, IConfiguration config)
     {
         _localStorage = localStorage;
         _httpClient = httpClient;
+        _config = config;
+        authTokenStorageKey = _config["authTokenStorageKey"]!;
     }
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        var token = await _localStorage.GetItemAsync<string>("authToken");
+        var token = await _localStorage.GetItemAsync<string>(authTokenStorageKey);
 
         if (string.IsNullOrWhiteSpace(token))
         {
