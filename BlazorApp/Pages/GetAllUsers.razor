@@ -2,6 +2,7 @@
 @using Shared_Layer.ApiServices.UserCRUD
 @using Shared_Layer.ApiServices.Authentication
 @using Domain_Layer.Models.User
+@using Shared_Layer.DTO_s.SearchQuery
 @inject IUserServices ApiService
 @inject IAuthService AuthService
 @inject NavigationManager NavigationManager
@@ -9,15 +10,17 @@
 
 <PageTitle> Get All Users </PageTitle>
 
-<EditForm Model ="@searchQuery" class="container mt-4" OnValidSubmit="PerformSearch">
+<EditForm Model="@model" class="container mt-4" OnValidSubmit="PerformSearch">
+    <DataAnnotationsValidator />
     <h2 class="text-center mb-4">User Information</h2>
 
     <div class="row mb-3">
         <div class="col-md-6">
             <div class="input-group">
-                <InputText @bind-Value="searchQuery" class="form-control" placeholder="Search Users..." />
+                <InputText @bind-Value="model.SearchQuery" class="form-control" placeholder="Search Users..." />
                 <button class="btn btn-primary" type="submit">Search</button>
             </div>
+            <ValidationMessage For="@(() => model.SearchQuery)" />
         </div>
     </div>
 
@@ -113,7 +116,7 @@ else
     IEnumerable<UserModel>? result;
     IEnumerable<UserModel>? filteredResult;
     UserModel? selectedUser;
-    string searchQuery = "";
+    private SearchQueryDTO model = new();
     private bool isAdmin = false;
     protected override async Task OnInitializedAsync()
     {
@@ -142,10 +145,10 @@ else
 
     void PerformSearch()
     {
-        if (!string.IsNullOrEmpty(searchQuery))
+        if (!string.IsNullOrEmpty(model.SearchQuery))
         {
             filteredResult = result?.Where(u =>
-                u.FirstName.StartsWith(searchQuery, StringComparison.OrdinalIgnoreCase))
+                u.FirstName.StartsWith(model.SearchQuery, StringComparison.OrdinalIgnoreCase))
                 .OrderBy(u => u.FirstName);
         }
         else
@@ -160,7 +163,6 @@ else
             "Admin" => "badge bg-success",
             "Teacher" => "badge bg-info",
             "Student" => "badge bg-secondary",
-
         };
     }
 }
