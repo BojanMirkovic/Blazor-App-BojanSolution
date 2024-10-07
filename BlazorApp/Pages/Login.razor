@@ -5,37 +5,52 @@
 @inject IAuthService AuthService
 @inject NavigationManager NavManager
 
-<h3>Log In</h3>
-@if (showAuthenticationError)
+@if (isModalVisible)
 {
-    <div class="alert alert-danger" role="alert">
-        <p>@authenticationErrorText</p>
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <button type="button" class="btn-close position-absolute top-0 end-0 m-2" @onclick="CloseModal"></button>
+                    <h3 class="text-center mt-3 mb-3">Log in to enter .NET Dojo World</h3>
+                    <img src="Images/login.png" alt="Dojo-IT Login" class="img-fluid" />
+
+                    <EditForm Model="model" OnValidSubmit="ExecuteLogin" class="card card-body bg-light mt-5">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+
+                        <div class="form-floating mb-3">
+                            <InputText @bind-Value="model.Email" class="form-control" id="email" placeholder="Email" />
+                            <label for="firstName">Email</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <InputText @bind-Value="model.Password" class="form-control" id="password" placeholder="Password" />
+                            <label for="firstName">Password</label>
+                        </div>
+                        @if (showAuthenticationError)
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                <p>@authenticationErrorText</p>
+                            </div>
+                        }
+                        <button class="btn btn-primary mt-3">Login</button>
+
+                    </EditForm>
+                </div>
+            </div>
+        </div>
     </div>
+    <div class="modal-backdrop fade show"></div>
 }
-<EditForm Model="model" OnValidSubmit="ExecuteLogin" class="card card-body bg-light mt-5">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
 
-   
-    <div class="form-floating mb-3">
-        <InputText @bind-Value="model.Email" class="form-control" id="email" placeholder="Email" />
-        <label for="firstName">Email</label>
-    </div>
-   
-   
-    <div class="form-floating mb-3">
-        <InputText @bind-Value="model.Password" class="form-control" id="password" placeholder="Password" />
-        <label for="firstName">Password</label>
-    </div>
-   
-    <button class="btn btn-primary mt-3">Login</button>
-
-</EditForm>
 
 @code {
     private LoginUserDTO model = new();
     private bool showAuthenticationError = false;
     private string authenticationErrorText = "";
+    private bool isModalVisible = true; // Modal is initially visible
 
     private async Task ExecuteLogin()
     {
@@ -50,5 +65,10 @@
             authenticationErrorText = "There was an error when trying to log in.";
             showAuthenticationError = true;
         }
+    }
+    void CloseModal()
+    {
+        isModalVisible = false; // Hide the modal by setting the flag to false
+        NavManager.NavigateTo("/");
     }
 }
