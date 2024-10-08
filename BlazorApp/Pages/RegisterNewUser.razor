@@ -6,56 +6,88 @@
 @inject HttpClient Http
 @inject IUserServices ApiService;
 @inject NavigationManager NavManager
+<h3>Register2</h3>
 
-<h2>Register User</h2>
-
-@if (!string.IsNullOrWhiteSpace(errorMessage))
+@if (isModalVisible)
 {
-    <div class="alert alert-danger">
-        <strong>Error:</strong> @errorMessage
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <button type="button" class="btn-close position-absolute top-0 end-0 m-2" @onclick="CloseModal"></button>
+                    <h3 class="text-center mt-3 mb-3">.NET Dojo Sign Up</h3>
+                    <img src="Images/register.jpg" alt="Dojo-IT Register" class="img-fluid" />
+                    <EditForm Model="@model" OnValidSubmit="HandleRegistration" class="card card-body bg-light mt-3">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <InputSelect @bind-Value="model.Role" class="form-control mb-3" tabindex="1">
+                            <option value="" disabled selected>Role</option>
+                            <option value="Teacher">Teacher</option>
+                            <option value="Student">Student</option>
+                        </InputSelect>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <InputText @bind-Value="model.FirstName" class="form-control" id="firstName" tabindex="2" placeholder="First Name" />
+                                    <label for="firstName">First Name</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <InputText @bind-Value="model.LastName" class="form-control" id="lastName" tabindex="3" placeholder="Last Name" />
+                                    <label for="firstName">Last Name</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <InputText @bind-Value="model.Email" class="form-control" id="email" tabindex="4" placeholder="Email" />
+                            <label for="firstName">Email</label>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <InputText @bind-Value="model.Password" class="form-control" id="password" tabindex="5" placeholder="Password" />
+                                    <label for="firstName">Password</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <InputText @bind-Value="model.ConfirmPassword" class="form-control" id="confirmPassword" tabindex="6" placeholder="Confirm Password" />
+                                    <label for="firstName">Confirm Password</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (isLoading)
+                        {
+                            <div class="text-center">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(errorMessage))
+                        {
+                            <div class="alert alert-danger">
+                                <strong>Error:</strong> @errorMessage
+                            </div>
+                        }
+                        <button class="btn btn-primary mt-3" tabindex="7">Sign Up</button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
     </div>
 }
-
-<EditForm Model="@model" OnValidSubmit="HandleRegistration" class="card card-body bg-light mt-5">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-
-   
-    <InputSelect @bind-Value="model.Role" class="form-control mb-3">
-        <option value="" disabled selected>Role</option>
-        <option value="Teacher">Teacher</option>
-        <option value="Student">Student</option>
-    </InputSelect>
-
-    <div class="form-floating mb-3">
-        <InputText @bind-Value="model.FirstName" class="form-control" id="firstName" placeholder="First Name" />
-        <label for="firstName">First Name</label>
-    </div>
-  
-    <div class="form-floating mb-3">
-        <InputText @bind-Value="model.LastName" class="form-control" id="lastName" placeholder="Last Name" />
-        <label for="firstName">Last Name</label>
-    </div>
-    <div class="form-floating mb-3">
-        <InputText @bind-Value="model.Email" class="form-control" id="email" placeholder="Email" />
-        <label for="firstName">Email</label>
-    </div>
-    <div class="form-floating mb-3">
-        <InputText @bind-Value="model.Password" class="form-control" id="password" placeholder="Password" />
-        <label for="firstName">Password</label>
-    </div>
-    <div class="form-floating mb-3">
-        <InputText @bind-Value="model.ConfirmPassword" class="form-control" id="confirmPassword" placeholder="Confirm Password" />
-        <label for="firstName">Confirm Password</label>
-    </div>
- 
-    <button class="btn btn-primary mt-3">Submit</button>  
-</EditForm>
 
 @code {
     private RegisterUserDTO model = new();
     private bool success = false;
     private string? errorMessage;
+    private bool isModalVisible = true; // Modal is initially visible
+    private bool isLoading = false;
 
 
     protected override async Task OnInitializedAsync()
@@ -67,16 +99,26 @@
     private async Task HandleRegistration()
     {
         errorMessage = "";
+        isLoading = true;
         try
         {
-            await ApiService.RegisterNewUserAsync(model);    
-            model = new RegisterUserDTO();   
+            await ApiService.RegisterNewUserAsync(model);
+            model = new RegisterUserDTO();
             // Redirect to login page upon successful registration
             NavManager.NavigateTo("/login");
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             errorMessage = ex.Message;
-        }  
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+    void CloseModal()
+    {
+        isModalVisible = false; // Hide the modal by setting the flag to false
+        NavManager.NavigateTo("/");
     }
 }

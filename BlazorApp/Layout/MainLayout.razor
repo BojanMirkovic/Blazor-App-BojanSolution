@@ -11,12 +11,15 @@
                 <Authorized>
                     Welcome @context.User?.FindFirst(ClaimTypes.Email)?.Value
                     <NavLink class="nav-link" href="logout">
-                        <span class="bi bi-box-arrow-left"></span>Log Out
+                        <span class="bi bi-box-arrow-left"></span> Log Out
                     </NavLink>
                 </Authorized>
                 <NotAuthorized>
                     <NavLink class="nav-link" href="login">
-                        <span class="bi bi-box-arrow-in-right"></span>Log In
+                        <span class="bi bi-box-arrow-in-right"></span> Log In
+                    </NavLink>
+                    <NavLink class="nav-link" href="register">
+                        <span></span> Sign Up
                     </NavLink>
                 </NotAuthorized>
             </AuthorizeView>

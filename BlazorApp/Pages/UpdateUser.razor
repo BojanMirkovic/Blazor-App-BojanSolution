@@ -10,19 +10,6 @@
 
 <h2>Update User</h2>
 
-@if (!string.IsNullOrWhiteSpace(errorMessage))
-{
-    <div class="alert alert-danger mt-3">
-        <strong>Error:</strong> @errorMessage
-    </div>
-}
-@if (!string.IsNullOrWhiteSpace(successMessage))
-{
-    <div class="alert alert-success mt-3">
-        <strong>Success:</strong> @successMessage
-    </div>
-}
-
 <EditForm Model="@model" OnValidSubmit="HandleUserUpdate" class="card card-body bg-light mt-5">
     <DataAnnotationsValidator />
     <ValidationSummary />
@@ -58,6 +45,31 @@
         <InputText @bind-Value="model.LastName" class="form-control" id="lastName" placeholder="Last Name" />
         <label for="firstName">Last Name</label>
     </div>
+    @if (isUpdating)
+    {
+        <div class="mt-4 text-center">
+            <!-- You can use a spinner component or simple message -->
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Updating...</span>
+                </div>
+            </div>
+            <p>Updating data, please wait...</p>
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(errorMessage))
+    {
+        <div class="alert alert-danger mt-3">
+            <strong>Error:</strong> @errorMessage
+        </div>
+    }
+    @if (!string.IsNullOrWhiteSpace(successMessage))
+    {
+        <div class="alert alert-success mt-3">
+            <strong>Success:</strong> @successMessage
+        </div>
+    }
    
     <button class="btn btn-primary mt-3">Submit</button>
 </EditForm>
@@ -67,6 +79,7 @@
     private string? successMessage;
     private string? errorMessage;
     private bool isAdmin = false;
+    private bool isUpdating = false;
 
 
     protected override async Task OnInitializedAsync()
@@ -80,16 +93,21 @@
     private async Task HandleUserUpdate()
     {
         errorMessage = "";
+        isUpdating = true;
         try
         {
             await ApiService.UpdateUserAsync(model);
             model = new UpdatingUserDTO();
-          
+
             successMessage = "Update is successful!";
         }
         catch (Exception ex)
         {
             errorMessage = ex.Message;
+        }
+        finally
+        {
+            isUpdating = false;
         }
     }
 }
