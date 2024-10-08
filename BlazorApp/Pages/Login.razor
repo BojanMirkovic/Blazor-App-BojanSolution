@@ -15,7 +15,7 @@
                     <h3 class="text-center mt-3 mb-3">Log in to enter .NET Dojo World</h3>
                     <img src="Images/login.png" alt="Dojo-IT Login" class="img-fluid" />
 
-                    <EditForm Model="model" OnValidSubmit="ExecuteLogin" class="card card-body bg-light mt-5">
+                    <EditForm Model="model" OnValidSubmit="ExecuteLogin" class="card card-body bg-light mt-3">
                         <DataAnnotationsValidator />
                         <ValidationSummary />
 
@@ -29,6 +29,18 @@
                             <InputText @bind-Value="model.Password" class="form-control" id="password" placeholder="Password" />
                             <label for="firstName">Password</label>
                         </div>
+                        @if (isLoading)
+                        {
+                            <div class="mt-4 text-center">
+                                <!-- You can use a spinner component or simple message -->
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                                <p>Loading data, please wait...</p>
+                            </div>
+                        }
                         @if (showAuthenticationError)
                         {
                             <div class="alert alert-danger" role="alert">
@@ -36,7 +48,12 @@
                             </div>
                         }
                         <button class="btn btn-primary mt-3">Login</button>
-
+                        <div class="text-center mt-3">
+                            <p class="mb-0">Don't have an account?</p>
+                            <NavLink class="nav-link" href="register">
+                                <span></span> Sign Up
+                            </NavLink>
+                        </div>
                     </EditForm>
                 </div>
             </div>
@@ -51,13 +68,16 @@
     private bool showAuthenticationError = false;
     private string authenticationErrorText = "";
     private bool isModalVisible = true; // Modal is initially visible
+    private bool isLoading = false;
 
     private async Task ExecuteLogin()
     {
+        isLoading = true;
         var result = await AuthService.Login(model);
 
         if (result)
         {
+            isLoading = false;
             NavManager.NavigateTo("/");
         }
         else
@@ -65,6 +85,7 @@
             authenticationErrorText = "There was an error when trying to log in.";
             showAuthenticationError = true;
         }
+      
     }
     void CloseModal()
     {
