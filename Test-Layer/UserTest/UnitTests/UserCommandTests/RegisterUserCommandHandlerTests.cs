@@ -41,6 +41,9 @@ namespace Test_Layer.UserTest.UnitTests.UserCommandTests
             var registeredUser = _fixture.Build<UserModel>()
                                          .With(u => u.Email, newUser.Email)
                                          .Create();
+            // Mock the _userRepository.GetUserByEmailAsync to return null indicating no existing user
+            A.CallTo(() => _userRepository.GetUserByEmailAsync(userDto.Email))!
+                .Returns((UserModel?)null);
 
             A.CallTo(() => _mapper.Map<UserModel>(A<RegisterUserDTO>.That.IsEqualTo(userDto)))
                 .Returns(newUser);
@@ -80,7 +83,9 @@ namespace Test_Layer.UserTest.UnitTests.UserCommandTests
                               .Create();
             var command = new RegisterUserCommand(userDto);
             var newUser = _mapper.Map<UserModel>(userDto);
-
+            // Mock the _userRepository.GetUserByEmailAsync to return null indicating no existing user
+            A.CallTo(() => _userRepository.GetUserByEmailAsync(userDto.Email))!
+                .Returns((UserModel?)null);
             A.CallTo(() => _mapper.Map<UserModel>(A<RegisterUserDTO>.That.IsEqualTo(userDto)))
                 .Returns(newUser);
             A.CallTo(() => _userRepository.RegisterUserAsync(newUser, userDto.Password, userDto.Role))
@@ -88,6 +93,33 @@ namespace Test_Layer.UserTest.UnitTests.UserCommandTests
 
             // Act & Assert
             Assert.ThrowsAsync<Exception>(() => _handler.Handle(command, default));
+        }
+        [Test]
+        public void Handle_FailedRegistration_ThrowsInvalidOperationException()
+        {
+            // Arrange
+            var userDto = _fixture.Build<RegisterUserDTO>()
+                              .With(u => u.Email, "test@example.com")
+                              .With(u => u.Password, "Test123!")
+                              .With(u => u.ConfirmPassword, "Test123!")
+                              .With(u => u.Role, "Teacher")
+                              .Create();
+           
+            var command = new RegisterUserCommand(userDto);
+            var newUser = _mapper.Map<UserModel>(userDto);
+            var existingUser = _fixture.Build<UserModel>()
+                                       .With(u => u.Email, newUser.Email)
+                                       .Create();
+            // Mock the _userRepository.GetUserByEmailAsync to return existing user Email
+            A.CallTo(() => _userRepository.GetUserByEmailAsync(userDto.Email))!
+                .Returns(existingUser);
+            A.CallTo(() => _mapper.Map<UserModel>(A<RegisterUserDTO>.That.IsEqualTo(userDto)))
+                .Returns(newUser);
+            A.CallTo(() => _userRepository.RegisterUserAsync(newUser, userDto.Password, userDto.Role))
+                .Throws<InvalidOperationException>();
+
+            // Act & Assert
+            Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Handle(command, default));
         }
     }
 }

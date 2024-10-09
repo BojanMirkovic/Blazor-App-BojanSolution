@@ -1,6 +1,8 @@
 ﻿using System.Net.Http.Json;
+using System.Text.Json;
 using Domain_Layer.Models.User;
 using Microsoft.Extensions.Configuration;
+using Shared_Layer.DTO_s.Error;
 using Shared_Layer.DTO_s.User;
 
 namespace Shared_Layer.ApiServices.UserCRUD
@@ -52,10 +54,13 @@ namespace Shared_Layer.ApiServices.UserCRUD
                 newUser.ConfirmPassword
             };
             using (var response = await _httpClient.PostAsJsonAsync(apiEndpoint, data))
-            {
+            { 
                 if (response.IsSuccessStatusCode == false)
                 {
-                    throw new Exception(response.ReasonPhrase);
+                    // Read the response content as a string
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    // Throw an exception with the detailed error message
+                    throw new Exception(errorContent);
                 }
             }
         }
@@ -76,7 +81,10 @@ namespace Shared_Layer.ApiServices.UserCRUD
             {
                 if (response.IsSuccessStatusCode == false)
                 {
-                    throw new Exception(response.ReasonPhrase);
+                    // Read the response content as a string
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    // Throw an exception with the detailed error message
+                    throw new Exception(errorContent);
                 }
             }
         }

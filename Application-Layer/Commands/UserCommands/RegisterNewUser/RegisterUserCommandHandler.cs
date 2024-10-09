@@ -3,8 +3,6 @@ using Domain_Layer.Models.User;
 using Infrastructure_Layer.Repositories.User;
 using MediatR;
 
-
-
 namespace Application_Layer.Commands.RegisterNewUser
 {
     public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, UserModel>
@@ -22,6 +20,11 @@ namespace Application_Layer.Commands.RegisterNewUser
             if (request.NewUser == null)
             {
                 throw new ArgumentNullException("Invalid user data. FirstName,LastName,Email and Password are required.");
+            }
+            var existingUser = await _userRepository.GetUserByEmailAsync(request.NewUser.Email);
+            if (existingUser != null)
+            {
+                throw new InvalidOperationException("A user with this email already exists.");
             }
             try
             {
