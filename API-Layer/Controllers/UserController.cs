@@ -138,36 +138,36 @@ namespace Application_Layer.Controllers
             {
                 if (string.IsNullOrEmpty(userId))
                 {
-                    return BadRequest("User is not recognized.");
+                    return BadRequest("The user ID is missing or invalid. Please ensure you are authenticated properly.");
                 }
 
                 var userLoggedInMail = User.FindFirstValue(ClaimTypes.Email);
                 if (string.IsNullOrEmpty(userLoggedInMail))
                 {
-                    return BadRequest("User is not recognized.");
+                    return BadRequest("No email address was found for the currently logged-in user. Please check your authentication details.");
                 }
 
                 var userQuery = new GetUserByEmailQuery(userLoggedInMail);
                 var currentUser = await _mediator.Send(userQuery);
                 if (currentUser == null || string.IsNullOrEmpty(currentUser.Id))
                 {
-                    return UnprocessableEntity("User is not recognized.");
+                    return UnprocessableEntity("The user could not be found based on the email address provided. Ensure your account is registered and has valid credentials.");
                 }
 
                 if (currentUser.Id != userId)
                 {
-                    return Forbid("You do not have permission to delete this user.");
+                    return Forbid();
                 }
 
                 var command = new DeleteUserCommand(userId);
                 var result = await _mediator.Send(command);
                 if (result)
                 {
-                    return Ok("User successfully deleted.");
+                    return Ok("User's account is successfuly deleted");
                 }
                 else
                 {
-                    return BadRequest("Failed to delete the user.");
+                    return BadRequest("Failed to delete user's account.");
                 }
             }
             catch (Exception ex)

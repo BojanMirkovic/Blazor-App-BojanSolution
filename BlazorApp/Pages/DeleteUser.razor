@@ -65,23 +65,25 @@
 
             // Fetch user data and assign it to the model
             var response = await ApiService.DeleteUserByIdAsync(model.Id);
+            // Read the error/success message from the response body, if any
+            string responseContent = await response.Content.ReadAsStringAsync();
+
             if(response.IsSuccessStatusCode)
             {
-                successMessage = "User's account is successfuly deleted";
+                successMessage = responseContent;
                 model = new();
             }
             else
             {
-                // Read the error message from the response body, if any
-                var errorContent = await response.Content.ReadAsStringAsync();
-                errorMessage = $"Failed to delete user. Server response: {response.StatusCode}, {errorContent}";
+                
+                errorMessage = $"Delete User's account:{responseContent} Status code: {response.StatusCode}";
             }
             
            
         }
         catch (Exception ex)
         {
-            errorMessage = $"There is a problem with deleting user with Id: {model.Id}. {ex.Message}";
+            errorMessage = $"There is a problem with deleting user with Id: {model.Id}, {ex.Message}";
         }
         finally
         {

@@ -71,7 +71,7 @@ namespace Test_Layer.UserTest.IntegrationTests
             // Assert
             Assert.IsNotNull(actionResult);
             Assert.IsInstanceOf<OkObjectResult>(actionResult);
-            Assert.That(actionResult.Value, Is.EqualTo("User successfully deleted."));
+            Assert.That(actionResult.Value, Is.EqualTo("User's account is successfuly deleted"));
         }
 
 
@@ -92,7 +92,7 @@ namespace Test_Layer.UserTest.IntegrationTests
             // Assert
             Assert.IsNotNull(actionResult);
             Assert.IsInstanceOf<BadRequestObjectResult>(actionResult);
-            Assert.That(actionResult.Value, Is.EqualTo("Failed to delete the user."));
+            Assert.That(actionResult.Value, Is.EqualTo("Failed to delete user's account."));
         }
 
 
@@ -106,7 +106,7 @@ namespace Test_Layer.UserTest.IntegrationTests
 
             // Assert
             Assert.IsInstanceOf<BadRequestObjectResult>(actionResult);
-            Assert.That(actionResult.Value, Is.EqualTo("User is not recognized."));
+            Assert.That(actionResult.Value, Is.EqualTo("The user ID is missing or invalid. Please ensure you are authenticated properly."));
         }
 
 

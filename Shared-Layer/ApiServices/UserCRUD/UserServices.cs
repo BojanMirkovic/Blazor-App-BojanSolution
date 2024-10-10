@@ -1,8 +1,6 @@
 ﻿using System.Net.Http.Json;
-using System.Text.Json;
 using Domain_Layer.Models.User;
 using Microsoft.Extensions.Configuration;
-using Shared_Layer.DTO_s.Error;
 using Shared_Layer.DTO_s.User;
 
 namespace Shared_Layer.ApiServices.UserCRUD
