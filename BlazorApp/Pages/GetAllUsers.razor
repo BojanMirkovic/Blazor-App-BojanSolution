@@ -1,4 +1,5 @@
 ﻿@page "/users"
+@using Microsoft.AspNetCore.Authorization
 @using Shared_Layer.ApiServices.UserCRUD
 @using Shared_Layer.ApiServices.Authentication
 @using Domain_Layer.Models.User
@@ -7,6 +8,7 @@
 @inject IAuthService AuthService
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@attribute [Authorize(Roles = "Admin")]
 
 <PageTitle> Get All Users </PageTitle>
 
@@ -120,15 +122,15 @@ else
     private bool isAdmin = false;
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-        isAdmin = user.IsInRole("Admin");
+        // var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        // var user = authState.User;
+        // isAdmin = user.IsInRole("Admin");
 
-        if(!isAdmin)
-        {
-            // Redirect to an unauthorized page or home
-            NavigationManager.NavigateTo("/unauthorized");
-        }
+        // if(!isAdmin)
+        // {
+        //     // Redirect to an unauthorized page or home
+        //     NavigationManager.NavigateTo("/unauthorized");
+        // }
         result = await ApiService.GetAllUsersAsync();
         filteredResult = result.OrderBy(u => u.FirstName); // Show all users by default
     }

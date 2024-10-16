@@ -93,7 +93,7 @@ namespace Infrastructure_Layer.Repositories.User
             var token = new JwtSecurityToken(_configuration["Jwt:Issuer"],
                 _configuration["Jwt:Audience"],
                 claims,
-                expires: DateTime.UtcNow.AddHours(1),
+                expires: DateTime.UtcNow.AddMinutes(5),
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

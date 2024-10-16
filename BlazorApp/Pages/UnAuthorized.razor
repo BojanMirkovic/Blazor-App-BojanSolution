@@ -1,0 +1,12 @@
+﻿@page "/Unauthorized"
+@inject NavigationManager NavigationManager
+<h3>Access Denied</h3>
+<p>You do not have permission to access this page. Please contact your administrator if you believe this is an error.</p>
+<button @onclick="NavigateHome">Go Home</button>
+
+@code {
+    private void NavigateHome()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+}
