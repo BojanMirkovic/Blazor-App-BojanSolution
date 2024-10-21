@@ -433,6 +433,12 @@ namespace Infrastructure_Layer.Migrations
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("RefreshTokenExpiryTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Role")
                         .HasColumnType("nvarchar(max)");
 
@@ -443,20 +449,21 @@ namespace Infrastructure_Layer.Migrations
                         {
                             Id = "08260479-52a0-4c0e-a588-274101a2c3be",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "17314244-61a2-4249-8b9f-129a4fcd5b75",
+                            ConcurrencyStamp = "19e1f8fe-9ec3-4d94-9bb1-83ff9c949b5e",
                             Email = "bojan@infinet.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "BOJAN@INFINET.COM",
                             NormalizedUserName = "BOJAN@INFINET.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEIQSWoj/n1ZqMBxDPUE8JMGM/bdyg1YDqiBBfwkA6Na9FecVlrtte0N7NLquD3fCvQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAELoZgLMzW3ECzeSonpCuvcW5PzBu39Ku5Sy9szcx45ar3tUKdj4yUvpaq1n8nykO9Q==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "8ceabd22-e489-427f-9bf6-ccfb9477f138",
+                            SecurityStamp = "8e1f7f4f-a852-4168-8300-123f1cd4dfba",
                             TwoFactorEnabled = false,
                             UserName = "bojan@infinet.com",
                             FirstName = "Bojan",
                             IsDeleted = false,
                             LastName = "Mirkovic",
+                            RefreshTokenExpiryTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Role = "Admin"
                         });
                 });
