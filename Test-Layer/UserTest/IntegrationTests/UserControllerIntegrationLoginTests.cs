@@ -59,7 +59,7 @@ namespace Test_Layer.UserTest.IntegrationTests
             var expectedLoginResult = new LoginResult
             {
                 Successful = true,
-                Token = "fake_token"
+                AccessToken = "fake_token"
             };
 
             A.CallTo(() => _mediator.Send(A<LoginUserQuery>._, A<CancellationToken>._))
@@ -78,7 +78,7 @@ namespace Test_Layer.UserTest.IntegrationTests
             Assert.NotNull(tokenValue);
 
             // Validera token-värdet
-            Assert.That(tokenValue, Is.EqualTo(expectedLoginResult.Token));
+            Assert.That(tokenValue, Is.EqualTo(expectedLoginResult.AccessToken));
         }
 
 
@@ -98,7 +98,7 @@ namespace Test_Layer.UserTest.IntegrationTests
             {
                 Successful = false,
                 Error = "Invalid login attempt.",
-                Token = null
+                AccessToken = null
             };
 
             A.CallTo(() => mediator.Send(A<LoginUserQuery>._, A<CancellationToken>._)).Returns(loginResult);

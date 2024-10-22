@@ -1,6 +1,8 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
+using Azure.Core;
 using Domain_Layer.Models.User;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -83,7 +85,7 @@ namespace Infrastructure_Layer.Repositories.User
             return false;
         }
 
-        public async Task<string> GenerateJwtTokenAsync(UserModel user)
+        public async Task<(string accessToken, string refrshToken)> GenerateJwtTokenAsync(UserModel user)
         {
             var claims = await _userManager.GetClaimsAsync(user);
             claims.Add(new Claim(ClaimTypes.Role, user.Role ?? ""));
@@ -95,8 +97,62 @@ namespace Infrastructure_Layer.Repositories.User
                 claims,
                 expires: DateTime.UtcNow.AddMinutes(5),
                 signingCredentials: creds);
+            /***************************************************/
+            var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            // Generate Refresh Token, Update the user's refresh token in the database if a new one is generated
+            var refreshToken = GenerateRefreshToken();
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(1);
+
+            // Save the refresh token and its expiry time to the user in the database
+            await _userManager.UpdateAsync(user);
+
+            // Return both access and refresh tokens
+            return (accessToken, refreshToken);
+            /**************************************************/
+            //return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[32];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+
+            return Convert.ToBase64String(randomNumber);
+        }
+
+        private ClaimsPrincipal GetClaimsPrincipalFromExpierdToken(string token)
+        {
+            var jwtSetings = _configuration.GetSection("Jwt");
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = true,
+                ValidateIssuer = true,
+                ValidateIssuerSigningKey = true,
+                // IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECRET"))),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSetings["Jwt:Key"])),
+                ValidateLifetime = true,
+                ValidIssuer = jwtSetings["Jwt:Issuer"],
+                ValidAudience = jwtSetings["Jwt:Audience"],
+            };
+            var tokenHandler = new JwtSecurityTokenHandler();
+            SecurityToken securityToken;
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
+            var jwtSecurityToken = securityToken as JwtSecurityToken;
+
+            if (jwtSecurityToken is null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.CurrentCultureIgnoreCase))
+            {
+                throw new SecurityTokenException("Invalid Token");
+            }
+            return principal;
+        }
+
+        public async Task<UserModel> FindUserByRefreshToken(string? refreshToken)
+        {
+            var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshToken == refreshToken);
+            return user;
         }
     }
 }

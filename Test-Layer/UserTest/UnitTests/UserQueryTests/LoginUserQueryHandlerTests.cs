@@ -53,7 +53,7 @@ namespace Test_Layer.UserTest.UnitTests.UserQueryTests
             var result = await _handler.Handle(query, CancellationToken.None);
 
             Assert.IsTrue(result.Successful);
-            Assert.IsNotNull(result.Token);
+            Assert.IsNotNull(result.AccessToken);
             Assert.IsNull(result.Error);
         }
 
@@ -73,7 +73,7 @@ namespace Test_Layer.UserTest.UnitTests.UserQueryTests
             var result = await _handler.Handle(query, CancellationToken.None);
 
             Assert.IsFalse(result.Successful);
-            Assert.IsNull(result.Token);
+            Assert.IsNull(result.AccessToken);
             Assert.That(result.Error, Is.EqualTo("Invalid login attempt."));
         }
 
@@ -92,7 +92,7 @@ namespace Test_Layer.UserTest.UnitTests.UserQueryTests
 
             // Assert
             Assert.IsFalse(result.Successful);
-            Assert.IsNull(result.Token);
+            Assert.IsNull(result.AccessToken);
             Assert.That(result.Error, Is.EqualTo("User not found."));
         }
     }

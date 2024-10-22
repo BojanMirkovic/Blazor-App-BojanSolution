@@ -2,8 +2,12 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using Blazored.LocalStorage;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Shared_Layer.DTO_s.User;
 
 namespace Shared_Layer.ApiServices.Authentication
@@ -57,6 +61,5 @@ namespace Shared_Layer.ApiServices.Authentication
             _httpClient.DefaultRequestHeaders.Authorization = null;
         }
     }
-
 }
 

@@ -37,9 +37,10 @@ namespace Application_Layer.Queries.LoginUser
             }
         }
 
-        private LoginResult CreateLoginResult(bool successful, string? error, string? token = null)
+        private LoginResult CreateLoginResult(bool successful, string? error, (string,string)? token = null)
         {
-            return new LoginResult { Successful = successful, Error = error, Token = token };
+            var (accessToken, refreshToken) = token.Value;
+            return new LoginResult { Successful = successful, Error = error, AccessToken = accessToken, RefreshToken = refreshToken };
         }
     }
 }

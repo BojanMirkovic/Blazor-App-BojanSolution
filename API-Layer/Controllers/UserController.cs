@@ -2,12 +2,14 @@
 using Application_Layer.Commands.DeleteUser;
 using Application_Layer.Commands.RegisterNewUser;
 using Application_Layer.Commands.UpdateUser;
+using Application_Layer.Commands.UserCommands.RefreshToken;
 using Application_Layer.Queries.GetAllUsers;
 using Application_Layer.Queries.GetUserByEmail;
 using Application_Layer.Queries.GetUserById;
 using Application_Layer.Queries.LoginUser;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Shared_Layer.DTO_s.User;
 namespace Application_Layer.Controllers
@@ -48,7 +50,7 @@ namespace Application_Layer.Controllers
 
                 if (loginResult.Successful)
                 {
-                    return Ok(new { token = loginResult.Token });
+                    return Ok(new { token = loginResult.AccessToken });
                 }
                 else
                 {
@@ -60,6 +62,45 @@ namespace Application_Layer.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDTO request)
+        {
+            // Step 1: Validate the refresh token from the request
+            if (request is null || string.IsNullOrEmpty(request.RefreshToken))
+            {
+                return BadRequest(new { Error = "Invalid client request" });
+            }
+            /*************************************************************************/
+          
+            try
+            {
+                var refreshTokenResult = await _mediator.Send(new RefreshTokenCommand(request));
+
+                if (refreshTokenResult.Successful)
+                {
+                    return Ok(new { token = refreshTokenResult.AccessToken });
+                }
+                else
+                {
+                    return BadRequest(refreshTokenResult.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            /*************************************************************************/
+
+            // Step 5: Return the new AccessToken (and optionally the new RefreshToken)
+            //return Ok(new
+            //{
+            //    AccessToken = newAccessToken,
+            //    RefreshToken = newRefreshToken // Optional, you can return null if not updating
+            //});
+        }
+
 
         [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
