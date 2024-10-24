@@ -95,9 +95,9 @@ namespace Infrastructure_Layer.Repositories.User
             var token = new JwtSecurityToken(_configuration["Jwt:Issuer"],
                 _configuration["Jwt:Audience"],
                 claims,
-                expires: DateTime.UtcNow.AddMinutes(5),
+                expires: DateTime.UtcNow.AddMinutes(2),
                 signingCredentials: creds);
-            /***************************************************/
+
             var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
 
             // Generate Refresh Token, Update the user's refresh token in the database if a new one is generated
@@ -110,8 +110,6 @@ namespace Infrastructure_Layer.Repositories.User
 
             // Return both access and refresh tokens
             return (accessToken, refreshToken);
-            /**************************************************/
-            //return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         private string GenerateRefreshToken()

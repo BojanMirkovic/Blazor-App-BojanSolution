@@ -50,7 +50,7 @@ namespace Application_Layer.Controllers
 
                 if (loginResult.Successful)
                 {
-                    return Ok(new { token = loginResult.AccessToken });
+                    return Ok(new { accessToken = loginResult.AccessToken, refreshToken = loginResult.RefreshToken });
                 }
                 else
                 {
@@ -67,38 +67,41 @@ namespace Application_Layer.Controllers
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDTO request)
         {
             // Step 1: Validate the refresh token from the request
-            if (request is null || string.IsNullOrEmpty(request.RefreshToken))
+            if (request is null)
             {
+                Console.WriteLine("Request object is null.");
                 return BadRequest(new { Error = "Invalid client request" });
             }
-            /*************************************************************************/
-          
+            if (string.IsNullOrEmpty(request.RefreshToken))
+            {
+                Console.WriteLine("RefreshToken is null or empty.");
+                return BadRequest(new { Error = "Refresh token is required." });
+            }
+
             try
             {
-                var refreshTokenResult = await _mediator.Send(new RefreshTokenCommand(request));
+
+                // Log the RefreshToken being processed (consider removing or masking sensitive info in production)
+                Console.WriteLine($"Attempting to refresh with RefreshToken: {request.RefreshToken}");
+
+                LoginResult refreshTokenResult = await _mediator.Send(new RefreshTokenCommand(request));
 
                 if (refreshTokenResult.Successful)
                 {
-                    return Ok(new { token = refreshTokenResult.AccessToken });
+                    Console.WriteLine("Token refresh was successful.");
+                    return Ok(new { accessToken = refreshTokenResult.AccessToken, refreshToken = refreshTokenResult.RefreshToken });
                 }
                 else
                 {
+                    Console.WriteLine($"Token refresh failed: {refreshTokenResult.Error}");
                     return BadRequest(refreshTokenResult.Error);
                 }
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                Console.WriteLine($"Unexpected error during token refresh: {ex.Message}");
+                return StatusCode(500, new { Error = "An unexpected error occurred." });
             }
-
-            /*************************************************************************/
-
-            // Step 5: Return the new AccessToken (and optionally the new RefreshToken)
-            //return Ok(new
-            //{
-            //    AccessToken = newAccessToken,
-            //    RefreshToken = newRefreshToken // Optional, you can return null if not updating
-            //});
         }
 
 

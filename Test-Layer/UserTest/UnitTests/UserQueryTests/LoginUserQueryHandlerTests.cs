@@ -38,6 +38,7 @@ namespace Test_Layer.UserTest.UnitTests.UserQueryTests
             // Arrange
             var loginUserDTO = new LoginUserDTO { Email = "user@example.com", Password = "Password123" };
             var query = new LoginUserQuery(loginUserDTO);
+            var returnTokens = ("TestAccessToken", "TestRefershToken");
 
             var user = new UserModel { Email = loginUserDTO.Email };
 
@@ -48,7 +49,7 @@ namespace Test_Layer.UserTest.UnitTests.UserQueryTests
             A.CallTo(() => _signInManager.CheckPasswordSignInAsync(user, A<string>.Ignored, false))
                 .Returns(SignInResult.Success);
             A.CallTo(() => _userRepository.GenerateJwtTokenAsync(A<UserModel>.Ignored))
-                .Returns("TestToken");
+                .Returns(returnTokens);
 
             var result = await _handler.Handle(query, CancellationToken.None);
 

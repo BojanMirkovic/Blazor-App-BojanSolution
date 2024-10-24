@@ -19,6 +19,7 @@ namespace BlazorApp
             //Add services IUserService,... from Shared-Layer
             builder.Services.AddScoped<IUserServices, UserServices>();
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<ITokenService, TokenService>();
 
             builder.Services.AddScoped<CustomAuthenticationStateProvider>();
             builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<CustomAuthenticationStateProvider>());

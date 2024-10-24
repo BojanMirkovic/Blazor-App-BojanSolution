@@ -37,8 +37,15 @@ namespace Application_Layer.Queries.LoginUser
             }
         }
 
-        private LoginResult CreateLoginResult(bool successful, string? error, (string,string)? token = null)
+        private LoginResult CreateLoginResult(bool successful, string? error, (string, string)? token = null)
         {
+            if (!token.HasValue)
+            {
+                // Handle the null case, perhaps when the login attempt fails
+                return new LoginResult { Successful = successful, Error = error, AccessToken = null, RefreshToken = null };
+            }
+
+            // It's safe to access token.Value here since we checked HasValue
             var (accessToken, refreshToken) = token.Value;
             return new LoginResult { Successful = successful, Error = error, AccessToken = accessToken, RefreshToken = refreshToken };
         }

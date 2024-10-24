@@ -45,11 +45,10 @@ namespace Test_Layer.UserTest.IntegrationTests
 
             _userController.Register(registerUserDTO);
         }
-
         [Test]
-        public async Task Login_ReturnsOk_WhenLoginIsSuccessful()
+        public async Task Login_ReturnsOk_WhenLoginIsSuccessful_1()
         {
-            // Använda den redan registrerade användaren för inloggningsförsöket
+            // Arrange: use the already registered user for login attempt
             var loginUserDTO = new LoginUserDTO
             {
                 Email = "test@example.com",
@@ -70,17 +69,21 @@ namespace Test_Layer.UserTest.IntegrationTests
 
             // Assert
             Assert.IsInstanceOf<OkObjectResult>(actionResult);
+            Assert.IsNotNull(actionResult); // Ensure the action result is not null
 
-            // Kontrollera att svaret innehåller en token
+            // Check that the response contains a token
             var resultObject = actionResult.Value;
-            var tokenProperty = resultObject.GetType().GetProperty("token");
-            var tokenValue = tokenProperty.GetValue(resultObject, null) as string;
-            Assert.NotNull(tokenValue);
+            Assert.IsNotNull(resultObject, "The response object is null."); // Ensure the response object is not null
 
-            // Validera token-värdet
+            // Ensure the object has a property named "AccessToken"
+            var accessTokenProperty = resultObject.GetType().GetProperty("AccessToken");
+            Assert.IsNotNull(accessTokenProperty, "The response object does not contain an 'AccessToken' property.");
+
+            // Retrieve and check the token value
+            var tokenValue = accessTokenProperty.GetValue(resultObject, null) as string;
+            Assert.IsNotNull(tokenValue, "The 'AccessToken' property is null.");
             Assert.That(tokenValue, Is.EqualTo(expectedLoginResult.AccessToken));
         }
-
 
         [Test]
         public async Task Login_ReturnsBadRequest_WhenCredentialsAreInvalid()
